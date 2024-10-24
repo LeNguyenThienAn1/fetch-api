@@ -41,7 +41,11 @@ var maxIndex = 0;
 let sortDirection = {
     name: true,
     age: true,
-    salary: true
+    city: true,
+    position: true,
+    salary: true,
+    startDate: true,
+    email: true
 };
 
 // Hàm kiểm tra và cập nhật ảnh mặc định
@@ -344,16 +348,47 @@ form.addEventListener('submit', async (e)=> {
         alert('Error saving data. Please try again.');
     }
 });
-
-// Sorting functions
+// Hàm sắp xếp dữ liệu chung
 function sortData(field, direction, isString = false) {
     const sortedData = [...getData];
     sortedData.sort((a, b) => {
-        let valueA = isString ? a[field].toLowerCase() : parseFloat(a[field]);
-        let valueB = isString ? b[field].toLowerCase() : parseFloat(b[field]);
+        let valueA, valueB;
 
-        return direction ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
+        switch(field) {
+            case 'name':
+                valueA = (a.fName + ' ' + a.lName).toLowerCase();
+                valueB = (b.fName + ' ' + b.lName).toLowerCase();
+                break;
+            case 'sDateVal':
+                valueA = new Date(a[field]);
+                valueB = new Date(b[field]);
+                return direction ? valueA - valueB : valueB - valueA;
+            case 'ageVal':
+            case 'salaryVal':
+                valueA = parseFloat(a[field].replace(/[^0-9.-]+/g, ''));
+                valueB = parseFloat(b[field].replace(/[^0-9.-]+/g, ''));
+                break;
+            case 'emailVal':
+                valueA = a[field].toLowerCase();
+                valueB = b[field].toLowerCase();
+                break;
+            case 'cityVal':
+            case 'positionVal':
+                valueA = a[field].toLowerCase();
+                valueB = b[field].toLowerCase();
+                break;
+            default:
+                valueA = isString ? a[field].toLowerCase() : a[field];
+                valueB = isString ? b[field].toLowerCase() : b[field];
+        }
+
+        if (field !== 'sDateVal') {
+            if (valueA < valueB) return direction ? -1 : 1;
+            if (valueA > valueB) return direction ? 1 : -1;
+            return 0;
+        }
     });
+    
     getData = sortedData;
     showInfo();
 }
@@ -361,14 +396,28 @@ function sortData(field, direction, isString = false) {
 // Event Listeners cho các nút sắp xếp
 document.getElementById('sortName').addEventListener('click', () => {
     sortDirection.name = !sortDirection.name;
-    sortData('fName', sortDirection.name, true);
+    sortData('name', sortDirection.name, true);
     currentIndex = 1;
     displayIndexBtn();
 });
 
 document.getElementById('sortAge').addEventListener('click', () => {
     sortDirection.age = !sortDirection.age;
-    sortData('ageVal', sortDirection.age, false); // Gọi hàm sortData với isString = false cho tuổi
+    sortData('ageVal', sortDirection.age, false);
+    currentIndex = 1;
+    displayIndexBtn();
+});
+
+document.getElementById('sortCity').addEventListener('click', () => {
+    sortDirection.city = !sortDirection.city;
+    sortData('cityVal', sortDirection.city, true);
+    currentIndex = 1;
+    displayIndexBtn();
+});
+
+document.getElementById('sortPosition').addEventListener('click', () => {
+    sortDirection.position = !sortDirection.position;
+    sortData('positionVal', sortDirection.position, true);
     currentIndex = 1;
     displayIndexBtn();
 });
@@ -376,6 +425,20 @@ document.getElementById('sortAge').addEventListener('click', () => {
 document.getElementById('sortSalary').addEventListener('click', () => {
     sortDirection.salary = !sortDirection.salary;
     sortData('salaryVal', sortDirection.salary, false);
+    currentIndex = 1;
+    displayIndexBtn();
+});
+
+document.getElementById('sortStartDate').addEventListener('click', () => {
+    sortDirection.startDate = !sortDirection.startDate;
+    sortData('sDateVal', sortDirection.startDate, false);
+    currentIndex = 1;
+    displayIndexBtn();
+});
+
+document.getElementById('sortEmail').addEventListener('click', () => {
+    sortDirection.email = !sortDirection.email;
+    sortData('emailVal', sortDirection.email, true);
     currentIndex = 1;
     displayIndexBtn();
 });
